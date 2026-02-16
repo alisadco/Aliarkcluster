@@ -91,6 +91,7 @@ if [ ! -d /ark/server ] || [ ! -f /ark/server/version.txt ]; then
     chown -R steam:steam /ark/server
     touch /ark/server/.installing-ark
     arkmanager install --beta=preaquatica
+    arkmanager update --beta=preaquatica --validate
     rm -f /ark/server/.installing-ark
 else
     if [ "${BACKUPONSTART}" -eq 1 ] && [ "$(ls -A /ark/server/ShooterGame/Saved/SavedArks/)" ]; then
