@@ -107,6 +107,24 @@ if ! arkmanager checkmodupdate --revstatus; then
     rm -f /ark/server/.installing-mods
 fi
 
+
+log "###########################################################################"
+log "libsteam_api.so copy flag: ${COPY_STEAM_API}"
+
+if [ "${COPY_STEAM_API}" = "1" ]; then
+    if [ -z "${HOST_STEAM_API}" ] || [ -z "${DEST_STEAM_API}" ]; then
+        log "HOST_STEAM_API or DEST_STEAM_API not set!"
+    elif [ -f "$HOST_STEAM_API" ]; then
+        log "Copying libsteam_api.so from $HOST_STEAM_API ..."
+        cp -f "$HOST_STEAM_API" "$DEST_STEAM_API"
+        chown steam:steam "$DEST_STEAM_API"
+    else
+        log "libsteam_api.so not found at $HOST_STEAM_API"
+    fi
+else
+    log "libsteam_api.so copy disabled"
+fi
+
 log "###########################################################################"
 log "Launching ark server ..."
 if [ "${UPDATEONSTART}" -eq 1 ]; then
