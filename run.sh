@@ -115,13 +115,13 @@ if [ "${COPY_STEAM_API}" = "1" ]; then
     if [ -z "${HOST_STEAM_API}" ] || [ -z "${DEST_STEAM_API}" ]; then
         log "HOST_STEAM_API or DEST_STEAM_API not set!"
     elif [ -f "$HOST_STEAM_API" ]; then
-        # Rename existing file first
-        if [ -f "$DEST_STEAM_API" ]; then
+        # Only rename old libsteam_api.so if backup doesn't exist
+        if [ ! -f "${DEST_STEAM_API%.so}_o.so" ] && [ -f "$DEST_STEAM_API" ]; then
             log "Renaming old libsteam_api.so to libsteam_api_o.so"
             mv "$DEST_STEAM_API" "${DEST_STEAM_API%.so}_o.so"
         fi
 
-        log "Copying libsteam_api.so from $HOST_STEAM_API ..."
+        log "Copying new libsteam_api.so from $HOST_STEAM_API ..."
         cp -f "$HOST_STEAM_API" "$DEST_STEAM_API"
         chown steam:steam "$DEST_STEAM_API"
     else
@@ -130,6 +130,7 @@ if [ "${COPY_STEAM_API}" = "1" ]; then
 else
     log "libsteam_api.so copy disabled"
 fi
+
 
 log "###########################################################################"
 log "Launching ark server ..."
