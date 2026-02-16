@@ -82,7 +82,7 @@ fi
 chown -R steam:steam /ark /home/steam /cluster
 log "###########################################################################"
 
-if [ ! -d /ark/server ] || [ ! -f /ark/server/version.txt ]; then
+if [ ! -d /ark/server ]; then
     log "No game files found. Installing..."
     mkdir -p /ark/server/ShooterGame/Saved/SavedArks
     mkdir -p /ark/server/ShooterGame/Content/Mods
