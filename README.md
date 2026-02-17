@@ -1,136 +1,213 @@
-# ARK: Survival Evolved - Docker Cluster
+AliArkCluster – Docker Cluster for ARK: Survival Evolved
 
-Docker build for managing an __ARK: Survival Evolved__ server cluster.
+Docker image for running a clustered ARK: Survival Evolved server using ARK Server Tools.
 
-This image uses [Ark Server Tools](https://github.com/arkmanager/ark-server-tools) to manage an ark server and is forked from [boerngen-schmidt/Ark-docker](https://hub.docker.com/r/boerngenschmidt/ark-docker/).
+This project provides a production-ready Docker setup for managing single or multi-map ARK clusters with:
 
-*If you use an old volume, get the new arkmanager.cfg in the template directory.*
+Automatic installation
 
-__Don't forget to use `docker pull alisadco/Aliarkcluster` to get the latest version of the image__
+Mod management via Ark Server Tools
 
-## Features
- - Easy install (no steamcmd / lib32... to install)
- - Easy access to ark config file
- - Mods handling (via Ark Server Tools)
- - `docker stop` is a clean stop
- - Auto upgrading of arkmanager
+Scheduled updates and backups
 
-## Usage
-Fast & Easy cluster setup via docker compose:
+Clean shutdown handling
 
-```yaml
-version: "3"
+Optional beta branch support
+
+Optional custom libsteam_api.so injection
+
+Features
+
+No manual steamcmd setup required
+
+Full Ark Server Tools integration
+
+Clean docker stop handling
+
+Cron-based auto updates
+
+Cron-based backups
+
+Persistent cluster sharing
+
+Optional beta branch installation (ARK_BRANCH)
+
+Optional custom Steam API injection (COPY_STEAM_API)
+
+Pull Latest Image
+
+Always pull the latest version:
+
+docker pull alisadco/aliarkcluster:latest
+
+Recommended Docker Compose (Current Setup)
+
+Below is the updated compose configuration using:
+
+Hardcoded Steam API injection from /api
+
+Beta branch support (preaquatica)
+
+Host-mounted persistent storage
 
 services:
   island:
-    image: alisadco/Aliarkcluster:latest
+    image: alisadco/aliarkcluster:latest
     deploy:
       mode: global
     environment:
       CRON_AUTO_UPDATE: "0 */3 * * *"
       CRON_AUTO_BACKUP: "0 */1 * * *"
-      UPDATEONSTART: 1
+
+      UPDATEONSTART: 0
       BACKUPONSTART: 1
       BACKUPONSTOP: 1
       WARNONSTOP: 1
-      USER_ID: 1000
-      GROUP_ID: 1000
-      TZ: "UTC"
+
+      USER_ID: 7774
+      GROUP_ID: 7774
+      TZ: "ET"
+
       MAX_BACKUP_SIZE: 500
       SERVERMAP: "TheIsland"
-      SESSION_NAME: "ARK Cluster TheIsland"
+      SESSION_NAME: "Alisadco ARK Cluster TheIsland"
       MAX_PLAYERS: 15
+
       RCON_ENABLE: "True"
       QUERY_PORT: 15000
       GAME_PORT: 15002
       RCON_PORT: 15003
-      SERVER_PVE: "False"
-      SERVER_PASSWORD: ""
-      ADMIN_PASSWORD: "keepmesecret"
-      SPECTATOR_PASSWORD: "keepmesecret"
-      MODS: "731604991"
-      CLUSTER_ID: "myclusterid"
-      GAME_USERSETTINGS_INI_PATH: "/cluster/myclusterid.GameUserSettings.ini"
-      GAME_INI_PATH: "/cluster/myclusterid.Game.ini"
+
+      SERVER_PVE: "True"
+      SERVER_PASSWORD: "123123"
+      ADMIN_PASSWORD: "adminTheIsland123"
+      SPECTATOR_PASSWORD: "spectatorTheIsland123"
+
+      CLUSTER_ID: "alisadco"
+      GAME_USERSETTINGS_INI_PATH: "/cluster/alisadco.GameUserSettings.ini"
+      GAME_INI_PATH: "/cluster/alisadco.Game.ini"
+
       KILL_PROCESS_TIMEOUT: 300
-      KILL_ALL_PROCESSES_TIMEOUT: 300
-      KILL_ALL_PROCESSES_TIMEOUT: 300
+
       COPY_STEAM_API: 1
-      HOST_STEAM_API: /mnt/ssd/apps/ark/libsteam_api.so
-      DEST_STEAM_API: /ark/server/ShooterGame/Binaries/Linux/libsteam_api.so
+      ARK_BRANCH: preaquatica
+
     volumes:
-      - data_island:/ark
-      - cluster:/cluster
-      - /mnt/ssd/apps/ark:/mnt/ssd/apps/ark
+      - /mnt/ssd/apps/ark/data_island:/ark
+      - /mnt/ssd/apps/ark/cluster:/cluster
+      - /mnt/ssd/apps/ark/api:/api
+
     ports:
       - "15000-15003:15000-15003/udp"
 
-  valguero:
-    image: alisadco/Aliarkcluster:latest
-    deploy:
-      mode: global
-    environment:
-      CRON_AUTO_UPDATE: "15 */3 * * *"
-      CRON_AUTO_BACKUP: "15 */1 * * *"
-      UPDATEONSTART: 1
-      BACKUPONSTART: 1
-      BACKUPONSTOP: 1
-      WARNONSTOP: 1
-      USER_ID: 1000
-      GROUP_ID: 1000
-      TZ: "UTC"
-      MAX_BACKUP_SIZE: 500
-      SERVERMAP: "Valguero_P"
-      SESSION_NAME: "ARK Cluster Valguero"
-      MAX_PLAYERS: 15
-      RCON_ENABLE: "False"
-      QUERY_PORT: 15010
-      GAME_PORT: 15012
-      RCON_PORT: 15013
-      SERVER_PVE: "False"
-      SERVER_PASSWORD: ""
-      ADMIN_PASSWORD: "keepmesecret"
-      SPECTATOR_PASSWORD: "keepmesecret"
-      MODS: "731604991"
-      CLUSTER_ID: "myclusterid"
-      GAME_USERSETTINGS_INI_PATH: "/cluster/myclusterid.GameUserSettings.ini"
-      GAME_INI_PATH: "/cluster/myclusterid.Game.ini"
-      KILL_PROCESS_TIMEOUT: 300
-      KILL_ALL_PROCESSES_TIMEOUT: 300
-      KILL_ALL_PROCESSES_TIMEOUT: 300
-      COPY_STEAM_API: 1
-      HOST_STEAM_API: /mnt/ssd/apps/ark/libsteam_api.so
-      DEST_STEAM_API: /ark/server/ShooterGame/Binaries/Linux/libsteam_api.so
+Steam API Injection (Optional)
 
-    volumes:
-      - data_valguero:/ark
-      - cluster:/cluster
-      - /mnt/ssd/apps/ark:/mnt/ssd/apps/ark
-    ports:
-      - "15010-15013:15010-15013/udp"
+If COPY_STEAM_API=1, then at container start:
 
-volumes:
-  data_island:
-  data_valguero:
-  cluster:
-```
+/api/libsteam_api.so
+/api/libsteam_api_o.so
 
-## Volumes
-+ __/ark__ : Working directory :
-    + `/ark/server` : Server files and data.
-    + `/ark/log` : logs
-    + `/ark/backup` : backups
-    + `/ark/arkmanager.cfg` : config file for Ark Server Tools
-    + `/ark/crontab` : crontab config file
-    + `/ark/server/ShooterGame/Saved/Config/LinuxServer/Game.ini` : ark Game.ini config file
-    + `/ark/server/ShooterGame/Saved/Config/LinuxServer/GameUserSetting.ini` : ark GameUserSetting.ini config file
-    + `/ark/template` : Default config files
-    + `/ark/template/arkmanager.cfg` : default config file for Ark Server Tools
-    + `/ark/template/crontab` : default config file for crontab
-    + `/ark/staging` : default directory if you use the --downloadonly option when updating.
-+ __/cluster__ : Cluster volume to share with other instances
-    + `/cluster/myclusterid.Game.ini` : ark Game.ini config file which will be copied on every start
-    + `/cluster/myclusterid.GameUserSetting.ini` : ark GameUserSetting.ini config file which will be copied on every start
 
-## Known issues
-Currently none
+are copied into:
+
+/ark/server/ShooterGame/Binaries/Linux/
+
+
+This allows you to:
+
+Inject a custom wrapper
+
+Control the Steam API from the host
+
+Update without rebuilding the image
+
+Your /api directory is host-mounted:
+
+/mnt/ssd/apps/ark/api → /api
+
+Beta Branch Support
+
+You can install:
+
+Stable (default) – remove ARK_BRANCH
+
+Beta branch – set ARK_BRANCH to the desired branch, e.g., preaquatica
+
+The container will automatically install and update using:
+
+arkmanager install --beta=<branch>
+
+Volume Structure
+/ark
+
+Main server working directory:
+
+/ark/server → Game files
+
+/ark/log → Logs
+
+/ark/backup → Backups
+
+/ark/staging → Download-only staging
+
+/ark/arkmanager.cfg → Ark Server Tools config
+
+/cluster
+
+Shared cluster directory between maps:
+
+/cluster/<clusterid>.Game.ini
+
+/cluster/<clusterid>.GameUserSettings.ini
+
+These files are copied on each startup.
+
+/api
+
+Host-controlled Steam API injection directory:
+
+libsteam_api.so
+
+libsteam_api_o.so
+
+How It Works
+
+Container starts
+
+Ark Server Tools checks installation
+
+Game installs or updates
+
+Optional Steam API injection runs
+
+Server launches
+
+Cron jobs handle updates and backups
+
+Adding More Maps
+
+To expand your cluster:
+
+Duplicate the service
+
+Change:
+
+SERVERMAP
+
+Ports
+
+Volume mount for /ark
+
+Keep the same CLUSTER_ID
+
+Share the same /cluster volume
+
+Important Notes
+
+Always mount /ark to persistent storage
+
+Always mount /cluster for clustered travel
+
+Do not reuse the same /ark volume across maps
+
+Pull the latest image before updating your cluster
