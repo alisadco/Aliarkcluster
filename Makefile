@@ -1,10 +1,10 @@
 build:
-	docker build -f Dockerfile . -t r15ch13/arkcluster:dev
+	docker build -f Dockerfile . -t alisadco/Aliarkcluster:dev
 
 clean:
-	docker image rm r15ch13/arkcluster:dev ||:
+	docker image rm alisadco/Aliarkcluster:dev ||:
 
 push:
-	docker image push r15ch13/arkcluster:dev
+	docker image push alisadco/Aliarkcluster:dev
 
 all: clean build push
