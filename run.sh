@@ -119,25 +119,31 @@ fi
 log "###########################################################################"
 log "libsteam_api.so copy flag: ${COPY_STEAM_API}"
 
+BACKUP_FILE="${DEST_STEAM_API%.so}_o.so"
+
 if [ "${COPY_STEAM_API}" = "1" ]; then
     if [ -z "${HOST_STEAM_API}" ] || [ -z "${DEST_STEAM_API}" ]; then
         log "HOST_STEAM_API or DEST_STEAM_API not set!"
-    elif [ -f "$HOST_STEAM_API" ]; then
-        # Only rename old libsteam_api.so if backup doesn't exist
-        if [ ! -f "${DEST_STEAM_API%.so}_o.so" ] && [ -f "$DEST_STEAM_API" ]; then
-            log "Renaming old libsteam_api.so to libsteam_api_o.so"
-            mv "$DEST_STEAM_API" "${DEST_STEAM_API%.so}_o.so"
+
+    elif [ ! -f "$HOST_STEAM_API" ]; then
+        log "libsteam_api.so not found at $HOST_STEAM_API"
+
+    else
+        # Backup original ONLY if backup doesn't exist
+        if [ -f "$DEST_STEAM_API" ] && [ ! -f "$BACKUP_FILE" ]; then
+            log "Backing up original libsteam_api.so -> $(basename "$BACKUP_FILE")"
+            cp "$DEST_STEAM_API" "$BACKUP_FILE"
+            chown steam:steam "$BACKUP_FILE"
         fi
 
-        log "Copying new libsteam_api.so from $HOST_STEAM_API ..."
+        log "Copying custom libsteam_api.so..."
         cp -f "$HOST_STEAM_API" "$DEST_STEAM_API"
         chown steam:steam "$DEST_STEAM_API"
-    else
-        log "libsteam_api.so not found at $HOST_STEAM_API"
     fi
 else
     log "libsteam_api.so copy disabled"
 fi
+
 
 
 log "###########################################################################"
