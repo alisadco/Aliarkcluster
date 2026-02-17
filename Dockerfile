@@ -30,13 +30,7 @@ RUN <<EOT bash # Add steam user
     usermod -a -G docker_env steam
 EOT
 
-RUN <<EOT bash # Install ark-server-tools
-    curl -sqL "https://github.com/arkmanager/ark-server-tools/archive/refs/tags/v${ARKMANAGER_VERSION}.tar.gz" | tar zxvf -
-    pushd "./ark-server-tools-${ARKMANAGER_VERSION}/tools"
-    ./install.sh steam --bindir=/usr/bin
-    popd
-    rm -r "ark-server-tools-${ARKMANAGER_VERSION}"
-EOT
+RUN curl -sL https://raw.githubusercontent.com/arkmanager/ark-server-tools/master/netinstall.sh | bash -s steam
 
 RUN <<EOT bash # Create required directories
     mkdir -p /ark/{log,backup,staging,default,steam,.steam}
