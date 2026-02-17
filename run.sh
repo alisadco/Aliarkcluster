@@ -117,32 +117,33 @@ fi
 
 
 log "###########################################################################"
-log "libsteam_api.so copy flag: ${COPY_STEAM_API}"
+log "libsteam_api copy flag: ${COPY_STEAM_API}"
 
-BACKUP_FILE="${DEST_STEAM_API%.so}_o.so"
+SOURCE_DIR="/api"
+DEST_DIR="/ark/server/ShooterGame/Binaries/Linux"
 
 if [ "${COPY_STEAM_API}" = "1" ]; then
-    if [ -z "${HOST_STEAM_API}" ] || [ -z "${DEST_STEAM_API}" ]; then
-        log "HOST_STEAM_API or DEST_STEAM_API not set!"
+    log "Copying libsteam_api files from $SOURCE_DIR to $DEST_DIR"
 
-    elif [ ! -f "$HOST_STEAM_API" ]; then
-        log "libsteam_api.so not found at $HOST_STEAM_API"
-
+    if [ -f "$SOURCE_DIR/libsteam_api.so" ]; then
+        cp -f "$SOURCE_DIR/libsteam_api.so" "$DEST_DIR/libsteam_api.so"
+        chown steam:steam "$DEST_DIR/libsteam_api.so"
+        log "Copied libsteam_api.so"
     else
-        # Backup original ONLY if backup doesn't exist
-        if [ -f "$DEST_STEAM_API" ] && [ ! -f "$BACKUP_FILE" ]; then
-            log "Backing up original libsteam_api.so -> $(basename "$BACKUP_FILE")"
-            cp "$DEST_STEAM_API" "$BACKUP_FILE"
-            chown steam:steam "$BACKUP_FILE"
-        fi
+        log "libsteam_api.so not found in $SOURCE_DIR"
+    fi
 
-        log "Copying custom libsteam_api.so..."
-        cp -f "$HOST_STEAM_API" "$DEST_STEAM_API"
-        chown steam:steam "$DEST_STEAM_API"
+    if [ -f "$SOURCE_DIR/libsteam_api_o.so" ]; then
+        cp -f "$SOURCE_DIR/libsteam_api_o.so" "$DEST_DIR/libsteam_api_o.so"
+        chown steam:steam "$DEST_DIR/libsteam_api_o.so"
+        log "Copied libsteam_api_o.so"
+    else
+        log "libsteam_api_o.so not found in $SOURCE_DIR"
     fi
 else
-    log "libsteam_api.so copy disabled"
+    log "libsteam_api copy disabled"
 fi
+
 
 
 
