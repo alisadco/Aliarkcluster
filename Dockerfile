@@ -31,7 +31,7 @@ RUN <<EOT bash # Add steam user
 EOT
 
 RUN <<EOT bash # Install ark-server-tools
-    curl -sqL "https://github.com//ark-server-tools/archive/refs/tags/v${ARKMANAGER_VERSION}.tar.gz" | tar zxvf -
+    curl -sqL "https://github.com/arkmanager/ark-server-tools/archive/refs/tags/v${ARKMANAGER_VERSION}.tar.gz" | tar zxvf -
     pushd "./ark-server-tools-${ARKMANAGER_VERSION}/tools"
     ./install.sh steam --bindir=/usr/bin
     popd
