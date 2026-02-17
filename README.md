@@ -6,7 +6,7 @@ This image uses [Ark Server Tools](https://github.com/arkmanager/ark-server-tool
 
 *If you use an old volume, get the new arkmanager.cfg in the template directory.*
 
-__Don't forget to use `docker pull r15ch13/arkcluster` to get the latest version of the image__
+__Don't forget to use `docker pull alisadco/Aliarkcluster` to get the latest version of the image__
 
 ## Features
  - Easy install (no steamcmd / lib32... to install)
@@ -23,7 +23,7 @@ version: "3"
 
 services:
   island:
-    image: r15ch13/arkcluster:latest
+    image: alisadco/Aliarkcluster:latest
     deploy:
       mode: global
     environment:
@@ -54,14 +54,19 @@ services:
       GAME_INI_PATH: "/cluster/myclusterid.Game.ini"
       KILL_PROCESS_TIMEOUT: 300
       KILL_ALL_PROCESSES_TIMEOUT: 300
+      KILL_ALL_PROCESSES_TIMEOUT: 300
+      COPY_STEAM_API: 1
+      HOST_STEAM_API: /mnt/ssd/apps/ark/libsteam_api.so
+      DEST_STEAM_API: /ark/server/ShooterGame/Binaries/Linux/libsteam_api.so
     volumes:
       - data_island:/ark
       - cluster:/cluster
+      - /mnt/ssd/apps/ark:/mnt/ssd/apps/ark
     ports:
       - "15000-15003:15000-15003/udp"
 
   valguero:
-    image: r15ch13/arkcluster:latest
+    image: alisadco/Aliarkcluster:latest
     deploy:
       mode: global
     environment:
@@ -92,9 +97,15 @@ services:
       GAME_INI_PATH: "/cluster/myclusterid.Game.ini"
       KILL_PROCESS_TIMEOUT: 300
       KILL_ALL_PROCESSES_TIMEOUT: 300
+      KILL_ALL_PROCESSES_TIMEOUT: 300
+      COPY_STEAM_API: 1
+      HOST_STEAM_API: /mnt/ssd/apps/ark/libsteam_api.so
+      DEST_STEAM_API: /ark/server/ShooterGame/Binaries/Linux/libsteam_api.so
+
     volumes:
       - data_valguero:/ark
       - cluster:/cluster
+      - /mnt/ssd/apps/ark:/mnt/ssd/apps/ark
     ports:
       - "15010-15013:15010-15013/udp"
 
