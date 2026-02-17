@@ -90,8 +90,15 @@ if [ ! -d /ark/server ] || [ ! -f /ark/server/version.txt ]; then
     touch /ark/server/ShooterGame/Binaries/Linux/ShooterGameServer
     chown -R steam:steam /ark/server
     touch /ark/server/.installing-ark
-    arkmanager install --beta=preaquatica
-    arkmanager update --beta=preaquatica --validate
+    if [ "$ARK_BRANCH" = "stable" ]; then
+        log "Installing latest STABLE version..."
+        arkmanager install
+        arkmanager update --validate
+    else
+        log "Installing BETA branch: $ARK_BRANCH ..."
+        arkmanager install --beta="$ARK_BRANCH"
+        arkmanager update --beta="$ARK_BRANCH" --validate
+    fi
     rm -f /ark/server/.installing-ark
 else
     if [ "${BACKUPONSTART}" -eq 1 ] && [ "$(ls -A /ark/server/ShooterGame/Saved/SavedArks/)" ]; then
