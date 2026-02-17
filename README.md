@@ -1,55 +1,39 @@
-AliArkCluster – Docker Cluster for ARK: Survival Evolved
+# 🦕 AliArkCluster – Docker Cluster for ARK: Survival Evolved
 
-Docker image for running a clustered ARK: Survival Evolved server using ARK Server Tools.
+> Docker image for running a clustered ARK: Survival Evolved server using ARK Server Tools.
 
-This project provides a production-ready Docker setup for managing single or multi-map ARK clusters with:
+This project provides a production-ready Docker setup for managing single or multi-map ARK clusters with automatic installation, mod management, scheduled updates/backups, clean shutdown handling, and optional beta branch + custom Steam API support.
 
-Automatic installation
+---
 
-Mod management via Ark Server Tools
+## ✨ Features
 
-Scheduled updates and backups
+- No manual `steamcmd` setup required
+- Full [ARK Server Tools](https://github.com/FezVrasta/ark-server-tools) integration
+- Clean `docker stop` handling
+- Cron-based auto updates
+- Cron-based backups
+- Persistent cluster sharing
+- Optional beta branch installation (`ARK_BRANCH`)
+- Optional custom Steam API injection (`COPY_STEAM_API`)
 
-Clean shutdown handling
+---
 
-Optional beta branch support
+## 🐳 Pull Latest Image
 
-Optional custom libsteam_api.so injection
+Always pull the latest version before deploying:
 
-Features
-
-No manual steamcmd setup required
-
-Full Ark Server Tools integration
-
-Clean docker stop handling
-
-Cron-based auto updates
-
-Cron-based backups
-
-Persistent cluster sharing
-
-Optional beta branch installation (ARK_BRANCH)
-
-Optional custom Steam API injection (COPY_STEAM_API)
-
-Pull Latest Image
-
-Always pull the latest version:
-
+```bash
 docker pull alisadco/aliarkcluster:latest
+```
 
-Recommended Docker Compose (Current Setup)
+---
 
-Below is the updated compose configuration using:
+## 🚀 Recommended Docker Compose
 
-Hardcoded Steam API injection from /api
+Below is the recommended configuration using hardcoded Steam API injection from `/api`, beta branch support (`preaquatica`), and host-mounted persistent storage.
 
-Beta branch support (preaquatica)
-
-Host-mounted persistent storage
-
+```yaml
 services:
   island:
     image: alisadco/aliarkcluster:latest
@@ -58,156 +42,141 @@ services:
     environment:
       CRON_AUTO_UPDATE: "0 */3 * * *"
       CRON_AUTO_BACKUP: "0 */1 * * *"
-
       UPDATEONSTART: 0
       BACKUPONSTART: 1
       BACKUPONSTOP: 1
       WARNONSTOP: 1
-
       USER_ID: 7774
       GROUP_ID: 7774
       TZ: "ET"
-
       MAX_BACKUP_SIZE: 500
       SERVERMAP: "TheIsland"
       SESSION_NAME: "Alisadco ARK Cluster TheIsland"
       MAX_PLAYERS: 15
-
       RCON_ENABLE: "True"
       QUERY_PORT: 15000
       GAME_PORT: 15002
       RCON_PORT: 15003
-
       SERVER_PVE: "True"
       SERVER_PASSWORD: "123123"
       ADMIN_PASSWORD: "adminTheIsland123"
       SPECTATOR_PASSWORD: "spectatorTheIsland123"
-
       CLUSTER_ID: "alisadco"
       GAME_USERSETTINGS_INI_PATH: "/cluster/alisadco.GameUserSettings.ini"
       GAME_INI_PATH: "/cluster/alisadco.Game.ini"
-
       KILL_PROCESS_TIMEOUT: 300
-
       COPY_STEAM_API: 1
       ARK_BRANCH: preaquatica
-
     volumes:
       - /mnt/ssd/apps/ark/data_island:/ark
       - /mnt/ssd/apps/ark/cluster:/cluster
       - /mnt/ssd/apps/ark/api:/api
-
     ports:
       - "15000-15003:15000-15003/udp"
+```
 
-Steam API Injection (Optional)
+---
 
-If COPY_STEAM_API=1, then at container start:
+## 💉 Steam API Injection (Optional)
 
-/api/libsteam_api.so
-/api/libsteam_api_o.so
+When `COPY_STEAM_API=1`, the container copies the following files at startup:
 
+| Source | Destination |
+|--------|-------------|
+| `/api/libsteam_api.so` | `/ark/server/ShooterGame/Binaries/Linux/` |
+| `/api/libsteam_api_o.so` | `/ark/server/ShooterGame/Binaries/Linux/` |
 
-are copied into:
+This allows you to inject a custom wrapper, control the Steam API from the host, and update without rebuilding the image. Your `/api` directory is host-mounted:
 
-/ark/server/ShooterGame/Binaries/Linux/
+```
+/mnt/ssd/apps/ark/api  →  /api
+```
 
+---
 
-This allows you to:
+## 🔀 Beta Branch Support
 
-Inject a custom wrapper
+| Mode | Configuration |
+|------|--------------|
+| Stable (default) | Remove `ARK_BRANCH` |
+| Beta branch | Set `ARK_BRANCH` to desired branch (e.g., `preaquatica`) |
 
-Control the Steam API from the host
+The container automatically installs and updates using:
 
-Update without rebuilding the image
-
-Your /api directory is host-mounted:
-
-/mnt/ssd/apps/ark/api → /api
-
-Beta Branch Support
-
-You can install:
-
-Stable (default) – remove ARK_BRANCH
-
-Beta branch – set ARK_BRANCH to the desired branch, e.g., preaquatica
-
-The container will automatically install and update using:
-
+```bash
 arkmanager install --beta=<branch>
+```
 
-Volume Structure
-/ark
+---
 
-Main server working directory:
+## 📁 Volume Structure
 
-/ark/server → Game files
+### `/ark` — Main Server Working Directory
 
-/ark/log → Logs
+| Path | Description |
+|------|-------------|
+| `/ark/server` | Game files |
+| `/ark/log` | Server logs |
+| `/ark/backup` | Backups |
+| `/ark/staging` | Download-only staging |
+| `/ark/arkmanager.cfg` | ARK Server Tools config |
 
-/ark/backup → Backups
+### `/cluster` — Shared Cluster Directory
 
-/ark/staging → Download-only staging
+Shared between all maps in your cluster. Contains:
 
-/ark/arkmanager.cfg → Ark Server Tools config
-
-/cluster
-
-Shared cluster directory between maps:
-
+```
 /cluster/<clusterid>.Game.ini
-
 /cluster/<clusterid>.GameUserSettings.ini
+```
 
-These files are copied on each startup.
+These files are copied into each server on every startup.
 
-/api
+### `/api` — Steam API Injection Directory
 
-Host-controlled Steam API injection directory:
+Host-controlled directory containing:
 
+```
 libsteam_api.so
-
 libsteam_api_o.so
+```
 
-How It Works
+---
 
-Container starts
+## ⚙️ How It Works
 
-Ark Server Tools checks installation
+```
+1. Container starts
+2. ARK Server Tools checks installation
+3. Game installs or updates
+4. Optional Steam API injection runs
+5. Server launches
+6. Cron jobs handle updates and backups
+```
 
-Game installs or updates
+---
 
-Optional Steam API injection runs
+## 🗺️ Adding More Maps
 
-Server launches
+To expand your cluster, duplicate the service block and change the following:
 
-Cron jobs handle updates and backups
+- `SERVERMAP`
+- Port mappings
+- Volume mount for `/ark`
 
-Adding More Maps
+Keep the **same** `CLUSTER_ID` and **share** the same `/cluster` volume across all services.
 
-To expand your cluster:
+---
 
-Duplicate the service
+## ⚠️ Important Notes
 
-Change:
+- Always mount `/ark` to persistent storage
+- Always mount `/cluster` for clustered dino/character travel
+- **Do not** reuse the same `/ark` volume across different maps
+- Always pull the latest image before updating your cluster
 
-SERVERMAP
+---
 
-Ports
+## 📜 License
 
-Volume mount for /ark
-
-Keep the same CLUSTER_ID
-
-Share the same /cluster volume
-
-Important Notes
-
-Always mount /ark to persistent storage
-
-Always mount /cluster for clustered travel
-
-Do not reuse the same /ark volume across maps
-
-Pull the latest image before updating your cluster
+This project is maintained by [alisadco](https://hub.docker.com/r/alisadco/aliarkcluster).
